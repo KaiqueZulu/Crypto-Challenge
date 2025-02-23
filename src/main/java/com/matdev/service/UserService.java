@@ -2,19 +2,21 @@ package com.matdev.service;
 
 import com.matdev.model.User;
 import com.matdev.repository.DataSource;
+import com.matdev.security.RSAEncrypt;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class UserService {
     private final DataSource dataSource = DataSource.getInstance();
 
-    public User create(String rawUserInput) {
+    public User create(String rawUserInput, PublicKey publicKey) throws Exception {
         List<String> data = formatLine(rawUserInput);
 
         long id = Long.parseLong(data.get(0));
-        String userDocument = data.get(1);
-        String creditCardToken = data.get(2);
+        String userDocument = RSAEncrypt.encrypt(data.get(1), publicKey);
+        String creditCardToken = RSAEncrypt.encrypt(data.get(2), publicKey);
         long value = Long.parseLong(data.get(3));
 
         User user = new User(id, userDocument, creditCardToken, value);
@@ -26,14 +28,14 @@ public class UserService {
         return dataSource.findAll();
     }
 
-    public User update(Long id, String rawUserInput) {
+    public User update(Long id, String rawUserInput, PublicKey publicKey) throws Exception {
         if (!dataSource.exists(id)) {
             throw new NoSuchElementException("User not found with ID: " + id);
         }
 
         List<String> data = formatLine(rawUserInput);
-        String userDocument = data.get(0);
-        String creditCardToken = data.get(1);
+        String userDocument = RSAEncrypt.encrypt(data.get(1), publicKey);
+        String creditCardToken = RSAEncrypt.encrypt(data.get(2), publicKey);
         long value = Long.parseLong(data.get(2));
 
         User updatedUser = new User(id, userDocument, creditCardToken, value);

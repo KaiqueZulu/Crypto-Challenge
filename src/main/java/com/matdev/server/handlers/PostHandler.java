@@ -9,9 +9,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.security.PublicKey;
 
 public class PostHandler implements HttpHandler {
     private final UserService userService = new UserService();
+
+    private final PublicKey publicKey;
+
+    public PostHandler(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
 
 
     @Override
@@ -26,9 +33,7 @@ public class PostHandler implements HttpHandler {
                     sendResponse(exchange, 400, "{\"error\": \"Invalid input\"}");
                     return;
                 }
-
-                User user = userService.create(rawUserInput);
-
+                User user = userService.create(rawUserInput, publicKey);
                 String response = convertToJson(user);
                 sendResponse(exchange, 200, response);
             } catch (Exception e) {

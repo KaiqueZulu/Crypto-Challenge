@@ -10,10 +10,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.util.NoSuchElementException;
 
 public class UpdateHandler implements HttpHandler {
     private final UserService userService = new UserService();
+    private final PublicKey publicKey;
+
+    public UpdateHandler(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -39,7 +45,7 @@ public class UpdateHandler implements HttpHandler {
                     return;
                 }
 
-                User updatedUser = userService.update(id, rawUserInput);
+                User updatedUser = userService.update(id, rawUserInput, publicKey);
                 String response = "{\"message\": \"User updated successfully\", \"user\": " + convertToJson(updatedUser) + "}";
                 sendResponse(exchange, 200, response);
 
